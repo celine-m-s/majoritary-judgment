@@ -26,16 +26,20 @@ MENTION = [
     "Excellent"
     ]
 
+
+def random_number():
+    return random.randint(0,6)
+
 def create_votes():
     votes = []
     for n in range(0, VOTES):
         votes.append({
-          "hermione": random.randint(3,6), 
-          "balou": random.randint(0,6), 
-          "chuck-norris": random.randint(0,2), 
-          "elsa": random.randint(1,2), 
-          "gandalf": random.randint(3,6), 
-          "beyonce": random.randint(2,6)
+          "hermione": random_number(), 
+          "balou": random_number(), 
+          "chuck-norris": random_number(), 
+          "elsa": random_number(), 
+          "gandalf": random_number(), 
+          "beyonce": random_number()
           })
     return votes
 
