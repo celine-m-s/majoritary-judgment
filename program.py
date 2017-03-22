@@ -1,5 +1,6 @@
+#! /usr/bin/env python3
+# -*- coding: utf-8 -*-
 import random
-from decimal import Decimal, ROUND_HALF_UP
 
 ##################################################
 #################### VOTES SETUP #################
@@ -40,8 +41,10 @@ def create_votes():
     return votes
 
 ##################################################
-#################### PROGRAM #####################
+#################### FUNCTIONS ###################
 ##################################################
+
+############### CREATE ARRAY #####################
 
 def results_hash(votes):
     candidates_results = {}
@@ -52,6 +55,8 @@ def results_hash(votes):
                   candidates_results[candidate] = [0, 0, 0, 0, 0, 0, 0]
               candidates_results[candidate][index] += 1
     return candidates_results
+
+############### CALCULATE MEDIAN ##################
 
 def percent(nb, total):
   percent = (nb / total) * 100
@@ -93,10 +98,11 @@ def majoritary_mentions_hash(candidates_results):
                 r[candidate]["score"] = cumulative_percents[candidate][i]
     return r
 
+############### SORT CANDIDATES #####################
+
 def sort_candidates_by(hash):
     ## bubble sort here we go!
     unsorted = [[key, hash[key]["mention"], hash[key]["score"]] for key in hash]
-    max_value = 0
     for i in range(0, len(unsorted) -1):
         for j in range(0, len(unsorted) -1):
             ## but we need REVERSE bubble sort ;-)
@@ -109,6 +115,7 @@ def sort_candidates_by(hash):
                     unsorted[j+1], unsorted[j] = unsorted[j], unsorted[j+1]
     return unsorted
 
+############### FORMAT RESULTS #####################
 
 def print_results(results, candidates):
     for i, n in enumerate(results):
@@ -119,6 +126,14 @@ def print_results(results, candidates):
         else:
             print("- {} avec {:.2f}% de mentions {} ou inférieures".format(candidates[candidate]["name"], candidates[candidate]["score"], MENTIONS[candidates[candidate]["mention"]]))
 
+
+
+
+
+
+##################################################
+#################### MAIN FUNCTION ###############
+##################################################
 
 def main():
     votes = create_votes()
