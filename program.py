@@ -5,7 +5,7 @@ from decimal import Decimal, ROUND_HALF_UP
 #################### VOTES SETUP #################
 ##################################################
 
-VOTES = 10000000
+VOTES = 100000
 MEDIAN = VOTES/2
 CANDIDATES = {          
     "hermione": "Hermione Granger", 
@@ -26,19 +26,16 @@ MENTION = [
     "Excellent"
     ]
 
-def random_number():
-    return random.randint(0,6)
-
 def create_votes():
     votes = []
     for n in range(0, VOTES):
         votes.append({
-          "hermione": random_number(), 
-          "balou": random_number(), 
-          "chuck-norris": random_number(), 
-          "elsa": random_number(), 
-          "gandalf": random_number(), 
-          "beyonce": random_number()
+          "hermione": random.randint(3,6), 
+          "balou": random.randint(0,6), 
+          "chuck-norris": random.randint(0,2), 
+          "elsa": random.randint(1,2), 
+          "gandalf": random.randint(3,6), 
+          "beyonce": random.randint(2,6)
           })
     return votes
 
@@ -96,15 +93,20 @@ def majoritary_mentions_hash(candidates_results):
                 r[candidate]["score"] = cumulative_percents[candidate][i]
     return r
 
-def sort_candidates_by(ccpt, hash):
+def sort_candidates_by(hash):
     ## bubble sort here we go!
-    unsorted = [[key, hash[key][ccpt]] for key in hash]
+    unsorted = [[key, hash[key]["mention"], hash[key]["score"]] for key in hash]
     max_value = 0
     for i in range(0, len(unsorted) -1):
         for j in range(0, len(unsorted) -1):
             ## but we need REVERSE bubble sort ;-)
             if unsorted[j + 1][1] > unsorted[j][1]:
+                ## First we check if the mention is above
                 unsorted[j+1], unsorted[j] = unsorted[j], unsorted[j+1]
+            elif unsorted[j + 1][1] == unsorted[j][1]:
+                ## If they share the same mention, the candidate with the higher percent wins.
+                if unsorted[j + 1][2] > unsorted[j][2]:
+                    unsorted[j+1], unsorted[j] = unsorted[j], unsorted[j+1]
     return unsorted
 
 
@@ -122,7 +124,7 @@ def main():
     votes = create_votes()
     results = results_hash(votes)
     majoritary_mentions = majoritary_mentions_hash(results)
-    sorted_candidates = sort_candidates_by("score", majoritary_mentions)
+    sorted_candidates = sort_candidates_by(majoritary_mentions)
     print_results(sorted_candidates, majoritary_mentions)
 
 if __name__ == '__main__':
