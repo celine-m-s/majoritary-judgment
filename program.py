@@ -26,20 +26,16 @@ MENTION = [
     "Excellent"
     ]
 
-
-def random_number():
-    return random.randint(0,6)
-
 def create_votes():
     votes = []
     for n in range(0, VOTES):
         votes.append({
-          "hermione": random_number(), 
-          "balou": random_number(), 
-          "chuck-norris": random_number(), 
-          "elsa": random_number(), 
-          "gandalf": random_number(), 
-          "beyonce": random_number()
+          "hermione": random.randint(3,6), 
+          "balou": random.randint(0,6), 
+          "chuck-norris": random.randint(0,2), 
+          "elsa": random.randint(1,2), 
+          "gandalf": random.randint(3,6), 
+          "beyonce": random.randint(2,6)
           })
     return votes
 
@@ -118,10 +114,10 @@ def print_results(results, candidates):
     for i, n in enumerate(results):
         candidate = results[i][0]
         if results.index(n) == 0:
-            print("Gagnant: {} avec {}% de mentions {} ou inférieures".format(CANDIDATES[candidate], candidates[candidate]["score"], candidates[candidate]["mention"]))
+            print("Gagnant: {} avec {:.2f}% de mentions {} ou inférieures".format(CANDIDATES[candidate], candidates[candidate]["score"], candidates[candidate]["mention"]))
             continue
         else:
-            print("- {} avec {}% de mentions {} ou inférieures".format(candidates[candidate]["name"], candidates[candidate]["score"], candidates[candidate]["mention"]))
+            print("- {} avec {:.2f}% de mentions {} ou inférieures".format(candidates[candidate]["name"], candidates[candidate]["score"], candidates[candidate]["mention"]))
 
 
 def main():
