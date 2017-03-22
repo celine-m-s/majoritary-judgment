@@ -16,7 +16,7 @@ CANDIDATES = {
     "beyonce": "Beyoncé"
     }
 
-MENTION = [
+MENTIONS = [
     "A rejeter", 
     "Insuffisant", 
     "Passable", 
@@ -114,10 +114,10 @@ def print_results(results, candidates):
     for i, n in enumerate(results):
         candidate = results[i][0]
         if results.index(n) == 0:
-            print("Gagnant: {} avec {:.2f}% de mentions {} ou inférieures".format(CANDIDATES[candidate], candidates[candidate]["score"], candidates[candidate]["mention"]))
+            print("Gagnant: {} avec {:.2f}% de mentions {} ou inférieures".format(CANDIDATES[candidate], candidates[candidate]["score"], MENTIONS[candidates[candidate]["mention"]]))
             continue
         else:
-            print("- {} avec {:.2f}% de mentions {} ou inférieures".format(candidates[candidate]["name"], candidates[candidate]["score"], candidates[candidate]["mention"]))
+            print("- {} avec {:.2f}% de mentions {} ou inférieures".format(candidates[candidate]["name"], candidates[candidate]["score"], MENTIONS[candidates[candidate]["mention"]]))
 
 
 def main():
