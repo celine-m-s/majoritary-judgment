@@ -65,21 +65,16 @@ def results_hash(votes):
 
 ############### CALCULATE MEDIAN ##################
 
-def cumulate(numbers):
-    cumulated = [numbers[0]] * len(numbers)
-    for i in range(1, len(numbers)):
-        cumulated[i] = numbers[i] + cumulated[i - 1]
-    return cumulated
-
 def majoritary_mentions_hash(candidates_results):
     r = {}
     for candidate, candidate_result in candidates_results.items():
-        cumulative_res = cumulate(candidate_result)
-        for i in range(0, len(cumulative_res) - 1):# bug?
-            if cumulative_res[i-1] <= MEDIAN < cumulative_res[i]:
+        cumulated_votes = 0
+        for mention, vote_count in enumerate(candidate_result):
+            cumulated_votes += vote_count
+            if MEDIAN < cumulated_votes:
                 r[candidate] = {
-                    "mention": i,
-                    "score": cumulative_res[i]
+                    "mention": mention,
+                    "score": cumulated_votes
                 }
                 break
     return r
