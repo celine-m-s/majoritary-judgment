@@ -28,17 +28,16 @@ MENTIONS = [
     ]
 
 def create_votes():
-    votes = []
-    for _ in range(0, VOTES):
-        votes.append({
-          "hermione": random.randint(3, 6),
-          "balou": random.randint(0, 6),
-          "chuck-norris": random.randint(0, 2),
-          "elsa": random.randint(1, 2),
-          "gandalf": random.randint(3, 6),
-          "beyonce": random.randint(2, 6)
-          })
-    return votes
+    return [
+        {
+            "hermione": random.randint(3, 6),
+            "balou": random.randint(0, 6),
+            "chuck-norris": random.randint(0, 2),
+            "elsa": random.randint(1, 2),
+            "gandalf": random.randint(3, 6),
+            "beyonce": random.randint(2, 6)
+        } for _ in range(0, VOTES)
+    ]
 
 ##################################################
 #################### FUNCTIONS ###################
@@ -47,26 +46,34 @@ def create_votes():
 ############### CREATE ARRAY #####################
 
 def results_hash(votes):
-    candidates_results = {}
+    """ Count votes per candidate and per mention
+
+    Returns a dict of candidate names containing vote arrays.
+    """
+    candidates_results = {
+        candidate: [0]*len(MENTIONS)
+        for candidate in CANDIDATES.keys()
+    }
     for vote in votes:
-        for candidate in vote:
-            index = vote[candidate]
-            if candidate not in candidates_results:
-                candidates_results[candidate] = [0, 0, 0, 0, 0, 0, 0]
+        for candidate, index in vote.items():
             candidates_results[candidate][index] += 1
     return candidates_results
 
 ############### CALCULATE MEDIAN ##################
 
 def percent(nb, total):
+    # I don't understand why this is useful. If you want to keep only the first
+    # two decimals of a float, it's better to do: return int(number*100)/100
+    # I suggest you get rid of this function.
+    # return nb * 100. / total
     stri = "{0:.2f}".format((nb / total) * 100)
     a = float(stri)
     return a
 
 def cumulate(numbers):
-    cumulated = [numbers[0]]
+    cumulated = [numbers[0]] * len(numbers)
     for i in range(1, len(numbers)):
-        cumulated.append(numbers[i] + cumulated[i - 1])
+        cumulated[i] = numbers[i] + cumulated[i - 1]
     return cumulated
 
 def cumulated_percents_hash(candidates_percents):
@@ -84,12 +91,13 @@ def res_in_percents(candidates_results):
 
 def majoritary_mentions_hash(candidates_results):
     r = {}
-    for candidate in candidates_results:
+    results_in_percent = res_in_percents(candidates_results)
+    cumulative_percents = cumulated_percents_hash(results_in_percent)
+    for candidate, candidate_result in candidates_results.items():
         r[candidate] = {}
-        cumulative_res = cumulate(candidates_results[candidate])
-        cumulative_percents = cumulated_percents_hash(res_in_percents(candidates_results))
-        for i in range(0, len(cumulative_res)-1):
-            if MEDIAN in range(cumulative_res[i-1], cumulative_res[i]):
+        cumulative_res = cumulate(candidate_result)
+        for i in range(0, len(cumulative_res) - 1):
+            if cumulative_res[i-1] <= MEDIAN < cumulative_res[i]:
                 r[candidate]["name"] = CANDIDATES[candidate]
                 r[candidate]["mention"] = i
                 r[candidate]["score"] = cumulative_percents[candidate][i]
@@ -101,7 +109,7 @@ def sort_candidates_by(mentions):
     ## bubble sort here we go!
     unsorted = [[key, mentions[key]["mention"], mentions[key]["score"]] for key in mentions]
     for _ in range(0, len(unsorted) - 1):
-        for j in range(0, len(unsorted) -1):
+        for j in range(0, len(unsorted) - 1):
             ## but we need REVERSE bubble sort ;-)
             if unsorted[j + 1][1] > unsorted[j][1]:
                 ## First we check if the mention is above
