@@ -19,7 +19,7 @@ CANDIDATES = {
     "elsa": "Elsa",
     "gandalf": "Gandalf",
     "beyonce": "Beyoncé"
-    }
+}
 
 MENTIONS = [
     "A rejeter",
@@ -29,7 +29,7 @@ MENTIONS = [
     "Bien",
     "Très bien",
     "Excellent"
-    ]
+]
 
 def create_votes():
     return [
@@ -59,20 +59,11 @@ def results_hash(votes):
         for candidate in CANDIDATES.keys()
     }
     for vote in votes:
-        for candidate, index in vote.items():
-            candidates_results[candidate][index] += 1
+        for candidate, mention in vote.items():
+            candidates_results[candidate][mention] += 1
     return candidates_results
 
 ############### CALCULATE MEDIAN ##################
-
-def percent(nb, total):
-    # I don't understand why this is useful. If you want to keep only the first
-    # two decimals of a float, it's better to do: return int(number*100)/100
-    # I suggest you get rid of this function.
-    # return nb * 100. / total
-    stri = "{0:.2f}".format((nb / total) * 100)
-    a = float(stri)
-    return a
 
 def cumulate(numbers):
     cumulated = [numbers[0]] * len(numbers)
@@ -80,38 +71,24 @@ def cumulate(numbers):
         cumulated[i] = numbers[i] + cumulated[i - 1]
     return cumulated
 
-def cumulated_percents_hash(candidates_percents):
-    result = {}
-    for candidate in candidates_percents:
-        result[candidate] = cumulate(candidates_percents[candidate])
-    return result
-
-def res_in_percents(candidates_results):
-    result = {}
-    for candidate in candidates_results:
-        result[candidate] = [percent(mentions, VOTES) for mentions in candidates_results[candidate]]
-    return result
-
-
 def majoritary_mentions_hash(candidates_results):
     r = {}
-    results_in_percent = res_in_percents(candidates_results)
-    cumulative_percents = cumulated_percents_hash(results_in_percent)
     for candidate, candidate_result in candidates_results.items():
-        r[candidate] = {}
         cumulative_res = cumulate(candidate_result)
-        for i in range(0, len(cumulative_res) - 1):
+        for i in range(0, len(cumulative_res) - 1):# bug?
             if cumulative_res[i-1] <= MEDIAN < cumulative_res[i]:
-                r[candidate]["name"] = CANDIDATES[candidate]
-                r[candidate]["mention"] = i
-                r[candidate]["score"] = cumulative_percents[candidate][i]
+                r[candidate] = {
+                    "mention": i,
+                    "score": cumulative_res[i]
+                }
+                break
     return r
 
 ############### SORT CANDIDATES #####################
 
 def sort_candidates_by(mentions):
     ## bubble sort here we go!
-    unsorted = [[key, mentions[key]["mention"], mentions[key]["score"]] for key in mentions]
+    unsorted = [[key, mention["mention"], mention["score"]] for key, mention in mentions.items()]
     for _ in range(0, len(unsorted) - 1):
         for j in range(0, len(unsorted) - 1):
             ## but we need REVERSE bubble sort ;-)
@@ -126,21 +103,19 @@ def sort_candidates_by(mentions):
 
 ############### FORMAT RESULTS #####################
 
-def print_results(results, candidates):
+def print_results(results):
     for i, result in enumerate(results):
         candidate = result[0]
+        mention = MENTIONS[result[1]]
+        score = result[2] * 100. / VOTES
         if i == 0:
             print("Gagnant: {} avec {:.2f}% de mentions {} ou inférieures".format(
-                CANDIDATES[candidate],
-                candidates[candidate]["score"],
-                MENTIONS[candidates[candidate]["mention"]]
+                CANDIDATES[candidate], score, mention
             ))
             continue
         else:
             print("- {} avec {:.2f}% de mentions {} ou inférieures".format(
-                candidates[candidate]["name"],
-                candidates[candidate]["score"],
-                MENTIONS[candidates[candidate]["mention"]]
+                CANDIDATES[candidate], score, mention
             ))
 
 
@@ -153,7 +128,7 @@ def main():
     results = results_hash(votes)
     majoritary_mentions = majoritary_mentions_hash(results)
     sorted_candidates = sort_candidates_by(majoritary_mentions)
-    print_results(sorted_candidates, majoritary_mentions)
+    print_results(sorted_candidates)
 
 if __name__ == '__main__':
     main()
