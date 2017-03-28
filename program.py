@@ -2,6 +2,10 @@
 # -*- coding: utf-8 -*-
 import random
 
+# Initialize seed so we always get the same result between two runs.
+# Comment this out if you want to change results between two runs.
+random.seed(0)
+
 ##################################################
 #################### VOTES SETUP #################
 ##################################################
