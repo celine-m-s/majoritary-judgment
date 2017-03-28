@@ -83,34 +83,38 @@ def majoritary_mentions_hash(candidates_results):
 
 def sort_candidates_by(mentions):
     ## bubble sort here we go!
-    unsorted = [[key, mention["mention"], mention["score"]] for key, mention in mentions.items()]
+    unsorted = [(key, (mention["mention"], mention["score"])) for key, mention in mentions.items()]
     for _ in range(0, len(unsorted) - 1):
         for j in range(0, len(unsorted) - 1):
             ## but we need REVERSE bubble sort ;-)
+            # (note that here we compare tuples, which is pretty neat)
             if unsorted[j + 1][1] > unsorted[j][1]:
-                ## First we check if the mention is above
                 unsorted[j+1], unsorted[j] = unsorted[j], unsorted[j+1]
-            elif unsorted[j + 1][1] == unsorted[j][1]:
-                ## If they share the same mention, the candidate with the higher percent wins.
-                if unsorted[j + 1][2] > unsorted[j][2]:
-                    unsorted[j+1], unsorted[j] = unsorted[j], unsorted[j+1]
-    return unsorted
+
+    return [
+        {
+            "name": candidate[0],
+            "mention": candidate[1][0],
+            "score": candidate[1][1],
+        }
+        for candidate in unsorted
+    ]
 
 ############### FORMAT RESULTS #####################
 
 def print_results(results):
     for i, result in enumerate(results):
-        candidate = result[0]
-        mention = MENTIONS[result[1]]
-        score = result[2] * 100. / VOTES
+        name = CANDIDATES[result["name"]]
+        mention = MENTIONS[result["mention"]]
+        score = result["score"] * 100. / VOTES
         if i == 0:
             print("Gagnant: {} avec {:.2f}% de mentions {} ou inférieures".format(
-                CANDIDATES[candidate], score, mention
+                name, score, mention
             ))
             continue
         else:
             print("- {} avec {:.2f}% de mentions {} ou inférieures".format(
-                CANDIDATES[candidate], score, mention
+                name, score, mention
             ))
 
 
