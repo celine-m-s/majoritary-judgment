@@ -8,35 +8,35 @@ import random
 
 VOTES = 100000
 MEDIAN = VOTES/2
-CANDIDATES = {          
-    "hermione": "Hermione Granger", 
-    "balou": "Balou", 
-    "chuck-norris": "Chuck Norris", 
-    "elsa": "Elsa", 
-    "gandalf": "Gandalf", 
+CANDIDATES = {
+    "hermione": "Hermione Granger",
+    "balou": "Balou",
+    "chuck-norris": "Chuck Norris",
+    "elsa": "Elsa",
+    "gandalf": "Gandalf",
     "beyonce": "Beyoncé"
     }
 
 MENTIONS = [
-    "A rejeter", 
-    "Insuffisant", 
-    "Passable", 
-    "Assez Bien", 
-    "Bien", 
-    "Très bien", 
+    "A rejeter",
+    "Insuffisant",
+    "Passable",
+    "Assez Bien",
+    "Bien",
+    "Très bien",
     "Excellent"
     ]
 
 def create_votes():
     votes = []
-    for n in range(0, VOTES):
+    for _ in range(0, VOTES):
         votes.append({
-          "hermione": random.randint(3,6), 
-          "balou": random.randint(0,6), 
-          "chuck-norris": random.randint(0,2), 
-          "elsa": random.randint(1,2), 
-          "gandalf": random.randint(3,6), 
-          "beyonce": random.randint(2,6)
+          "hermione": random.randint(3, 6),
+          "balou": random.randint(0, 6),
+          "chuck-norris": random.randint(0, 2),
+          "elsa": random.randint(1, 2),
+          "gandalf": random.randint(3, 6),
+          "beyonce": random.randint(2, 6)
           })
     return votes
 
@@ -50,39 +50,36 @@ def results_hash(votes):
     candidates_results = {}
     for vote in votes:
         for candidate in vote:
-              index = vote[candidate]
-              if candidate not in candidates_results:
-                  candidates_results[candidate] = [0, 0, 0, 0, 0, 0, 0]
-              candidates_results[candidate][index] += 1
+            index = vote[candidate]
+            if candidate not in candidates_results:
+                candidates_results[candidate] = [0, 0, 0, 0, 0, 0, 0]
+            candidates_results[candidate][index] += 1
     return candidates_results
 
 ############### CALCULATE MEDIAN ##################
 
 def percent(nb, total):
-  percent = (nb / total) * 100
-  stri = "{0:.2f}".format(percent)
-  a = float(stri)
-  return a
+    stri = "{0:.2f}".format((nb / total) * 100)
+    a = float(stri)
+    return a
 
 def cumulate(numbers):
-    list = []
-    list.append(numbers[0])
-    for i,j in enumerate(numbers):
-        if i in range(1, len(numbers)):
-            list.append(numbers[i] + list[i - 1])
-    return list
+    cumulated = [numbers[0]]
+    for i in range(1, len(numbers)):
+        cumulated.append(numbers[i] + cumulated[i - 1])
+    return cumulated
 
 def cumulated_percents_hash(candidates_percents):
-    hash = {}
+    result = {}
     for candidate in candidates_percents:
-        hash[candidate] = cumulate(candidates_percents[candidate])
-    return hash
+        result[candidate] = cumulate(candidates_percents[candidate])
+    return result
 
 def res_in_percents(candidates_results):
-    hash = {}
+    result = {}
     for candidate in candidates_results:
-        hash[candidate] = [percent(mentions, VOTES) for mentions in candidates_results[candidate]]
-    return hash
+        result[candidate] = [percent(mentions, VOTES) for mentions in candidates_results[candidate]]
+    return result
 
 
 def majoritary_mentions_hash(candidates_results):
@@ -100,10 +97,10 @@ def majoritary_mentions_hash(candidates_results):
 
 ############### SORT CANDIDATES #####################
 
-def sort_candidates_by(hash):
+def sort_candidates_by(mentions):
     ## bubble sort here we go!
-    unsorted = [[key, hash[key]["mention"], hash[key]["score"]] for key in hash]
-    for i in range(0, len(unsorted) -1):
+    unsorted = [[key, mentions[key]["mention"], mentions[key]["score"]] for key in mentions]
+    for _ in range(0, len(unsorted) - 1):
         for j in range(0, len(unsorted) -1):
             ## but we need REVERSE bubble sort ;-)
             if unsorted[j + 1][1] > unsorted[j][1]:
@@ -118,17 +115,21 @@ def sort_candidates_by(hash):
 ############### FORMAT RESULTS #####################
 
 def print_results(results, candidates):
-    for i, n in enumerate(results):
-        candidate = results[i][0]
-        if results.index(n) == 0:
-            print("Gagnant: {} avec {:.2f}% de mentions {} ou inférieures".format(CANDIDATES[candidate], candidates[candidate]["score"], MENTIONS[candidates[candidate]["mention"]]))
+    for i, result in enumerate(results):
+        candidate = result[0]
+        if i == 0:
+            print("Gagnant: {} avec {:.2f}% de mentions {} ou inférieures".format(
+                CANDIDATES[candidate],
+                candidates[candidate]["score"],
+                MENTIONS[candidates[candidate]["mention"]]
+            ))
             continue
         else:
-            print("- {} avec {:.2f}% de mentions {} ou inférieures".format(candidates[candidate]["name"], candidates[candidate]["score"], MENTIONS[candidates[candidate]["mention"]]))
-
-
-
-
+            print("- {} avec {:.2f}% de mentions {} ou inférieures".format(
+                candidates[candidate]["name"],
+                candidates[candidate]["score"],
+                MENTIONS[candidates[candidate]["mention"]]
+            ))
 
 
 ##################################################
