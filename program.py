@@ -84,12 +84,15 @@ def majoritary_mentions_hash(candidates_results):
 def sort_candidates_by(mentions):
     ## bubble sort here we go!
     unsorted = [(key, (mention["mention"], mention["score"])) for key, mention in mentions.items()]
-    for _ in range(0, len(unsorted) - 1):
+    swapped = True
+    while swapped:
+        swapped = False
         for j in range(0, len(unsorted) - 1):
             ## but we need REVERSE bubble sort ;-)
             # (note that here we compare tuples, which is pretty neat)
             if unsorted[j + 1][1] > unsorted[j][1]:
                 unsorted[j+1], unsorted[j] = unsorted[j], unsorted[j+1]
+                swapped = True
 
     return [
         {
