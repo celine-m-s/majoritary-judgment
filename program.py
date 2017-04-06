@@ -4,6 +4,7 @@ import random
 
 # Initialize seed so we always get the same result between two runs.
 # Comment this out if you want to change results between two runs.
+# More on this here: http://stackoverflow.com/questions/22639587/random-seed-what-does-it-do
 random.seed(0)
 
 ##################################################
