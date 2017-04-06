@@ -2,43 +2,46 @@
 # -*- coding: utf-8 -*-
 import random
 
+# Initialize seed so we always get the same result between two runs.
+# Comment this out if you want to change results between two runs.
+random.seed(0)
+
 ##################################################
 #################### VOTES SETUP #################
 ##################################################
 
 VOTES = 100000
 MEDIAN = VOTES/2
-CANDIDATES = {          
-    "hermione": "Hermione Granger", 
-    "balou": "Balou", 
-    "chuck-norris": "Chuck Norris", 
-    "elsa": "Elsa", 
-    "gandalf": "Gandalf", 
+CANDIDATES = {
+    "hermione": "Hermione Granger",
+    "balou": "Balou",
+    "chuck-norris": "Chuck Norris",
+    "elsa": "Elsa",
+    "gandalf": "Gandalf",
     "beyonce": "Beyoncé"
-    }
+}
 
 MENTIONS = [
-    "A rejeter", 
-    "Insuffisant", 
-    "Passable", 
-    "Assez Bien", 
-    "Bien", 
-    "Très bien", 
+    "A rejeter",
+    "Insuffisant",
+    "Passable",
+    "Assez Bien",
+    "Bien",
+    "Très bien",
     "Excellent"
-    ]
+]
 
 def create_votes():
-    votes = []
-    for n in range(0, VOTES):
-        votes.append({
-          "hermione": random.randint(3,6), 
-          "balou": random.randint(0,6), 
-          "chuck-norris": random.randint(0,2), 
-          "elsa": random.randint(1,2), 
-          "gandalf": random.randint(3,6), 
-          "beyonce": random.randint(2,6)
-          })
-    return votes
+    return [
+        {
+            "hermione": random.randint(3, 6),
+            "balou": random.randint(0, 6),
+            "chuck-norris": random.randint(0, 2),
+            "elsa": random.randint(1, 2),
+            "gandalf": random.randint(3, 6),
+            "beyonce": random.randint(2, 6)
+        } for _ in range(0, VOTES)
+    ]
 
 ##################################################
 #################### FUNCTIONS ###################
@@ -47,88 +50,75 @@ def create_votes():
 ############### CREATE ARRAY #####################
 
 def results_hash(votes):
-    candidates_results = {}
+    """ Count votes per candidate and per mention
+
+    Returns a dict of candidate names containing vote arrays.
+    """
+    candidates_results = {
+        candidate: [0]*len(MENTIONS)
+        for candidate in CANDIDATES.keys()
+    }
     for vote in votes:
-        for candidate in vote:
-              index = vote[candidate]
-              if candidate not in candidates_results:
-                  candidates_results[candidate] = [0, 0, 0, 0, 0, 0, 0]
-              candidates_results[candidate][index] += 1
+        for candidate, mention in vote.items():
+            candidates_results[candidate][mention] += 1
     return candidates_results
 
 ############### CALCULATE MEDIAN ##################
 
-def percent(nb, total):
-  percent = (nb / total) * 100
-  stri = "{0:.2f}".format(percent)
-  a = float(stri)
-  return a
-
-def cumulate(numbers):
-    list = []
-    list.append(numbers[0])
-    for i,j in enumerate(numbers):
-        if i in range(1, len(numbers)):
-            list.append(numbers[i] + list[i - 1])
-    return list
-
-def cumulated_percents_hash(candidates_percents):
-    hash = {}
-    for candidate in candidates_percents:
-        hash[candidate] = cumulate(candidates_percents[candidate])
-    return hash
-
-def res_in_percents(candidates_results):
-    hash = {}
-    for candidate in candidates_results:
-        hash[candidate] = [percent(mentions, VOTES) for mentions in candidates_results[candidate]]
-    return hash
-
-
 def majoritary_mentions_hash(candidates_results):
     r = {}
-    for candidate in candidates_results:
-        r[candidate] = {}
-        cumulative_res = cumulate(candidates_results[candidate])
-        cumulative_percents = cumulated_percents_hash(res_in_percents(candidates_results))
-        for i in range(0, len(cumulative_res)-1):
-            if MEDIAN in range(cumulative_res[i-1], cumulative_res[i]):
-                r[candidate]["name"] = CANDIDATES[candidate]
-                r[candidate]["mention"] = i
-                r[candidate]["score"] = cumulative_percents[candidate][i]
+    for candidate, candidate_result in candidates_results.items():
+        cumulated_votes = 0
+        for mention, vote_count in enumerate(candidate_result):
+            cumulated_votes += vote_count
+            if MEDIAN < cumulated_votes:
+                r[candidate] = {
+                    "mention": mention,
+                    "score": cumulated_votes
+                }
+                break
     return r
 
 ############### SORT CANDIDATES #####################
 
-def sort_candidates_by(hash):
+def sort_candidates_by(mentions):
     ## bubble sort here we go!
-    unsorted = [[key, hash[key]["mention"], hash[key]["score"]] for key in hash]
-    for i in range(0, len(unsorted) -1):
-        for j in range(0, len(unsorted) -1):
+    unsorted = [(key, (mention["mention"], mention["score"])) for key, mention in mentions.items()]
+    swapped = True
+    while swapped:
+        swapped = False
+        for j in range(0, len(unsorted) - 1):
             ## but we need REVERSE bubble sort ;-)
+            # (note that here we compare tuples, which is pretty neat)
             if unsorted[j + 1][1] > unsorted[j][1]:
-                ## First we check if the mention is above
                 unsorted[j+1], unsorted[j] = unsorted[j], unsorted[j+1]
-            elif unsorted[j + 1][1] == unsorted[j][1]:
-                ## If they share the same mention, the candidate with the higher percent wins.
-                if unsorted[j + 1][2] > unsorted[j][2]:
-                    unsorted[j+1], unsorted[j] = unsorted[j], unsorted[j+1]
-    return unsorted
+                swapped = True
+
+    return [
+        {
+            "name": candidate[0],
+            "mention": candidate[1][0],
+            "score": candidate[1][1],
+        }
+        for candidate in unsorted
+    ]
 
 ############### FORMAT RESULTS #####################
 
-def print_results(results, candidates):
-    for i, n in enumerate(results):
-        candidate = results[i][0]
-        if results.index(n) == 0:
-            print("Gagnant: {} avec {:.2f}% de mentions {} ou inférieures".format(CANDIDATES[candidate], candidates[candidate]["score"], MENTIONS[candidates[candidate]["mention"]]))
+def print_results(results):
+    for i, result in enumerate(results):
+        name = CANDIDATES[result["name"]]
+        mention = MENTIONS[result["mention"]]
+        score = result["score"] * 100. / VOTES
+        if i == 0:
+            print("Gagnant: {} avec {:.2f}% de mentions {} ou inférieures".format(
+                name, score, mention
+            ))
             continue
         else:
-            print("- {} avec {:.2f}% de mentions {} ou inférieures".format(candidates[candidate]["name"], candidates[candidate]["score"], MENTIONS[candidates[candidate]["mention"]]))
-
-
-
-
+            print("- {} avec {:.2f}% de mentions {} ou inférieures".format(
+                name, score, mention
+            ))
 
 
 ##################################################
@@ -140,7 +130,7 @@ def main():
     results = results_hash(votes)
     majoritary_mentions = majoritary_mentions_hash(results)
     sorted_candidates = sort_candidates_by(majoritary_mentions)
-    print_results(sorted_candidates, majoritary_mentions)
+    print_results(sorted_candidates)
 
 if __name__ == '__main__':
     main()
