@@ -5,7 +5,7 @@ import random
 # Initialize seed so we always get the same result between two runs.
 # Comment this out if you want to change results between two runs.
 # More on this here: http://stackoverflow.com/questions/22639587/random-seed-what-does-it-do
-random.seed(0)
+# random.seed(0)
 
 ##################################################
 #################### VOTES SETUP #################
@@ -23,24 +23,24 @@ CANDIDATES = {
 }
 
 MENTIONS = [
-    "A rejeter",
-    "Insuffisant",
-    "Passable",
-    "Assez Bien",
-    "Bien",
+    "Excellent",
     "Très bien",
-    "Excellent"
+    "Bien",
+    "Assez Bien",
+    "Passable",
+    "Insuffisant",
+    "A rejeter"
 ]
 
 def create_votes():
     return [
         {
-            "hermione": random.randint(3, 6),
-            "balou": random.randint(0, 6),
-            "chuck-norris": random.randint(0, 2),
-            "elsa": random.randint(1, 2),
-            "gandalf": random.randint(3, 6),
-            "beyonce": random.randint(2, 6)
+            "hermione": random.randint(0, 1),
+            "balou": random.randint(2, 4),
+            "chuck-norris": random.randint(4, 6),
+            "elsa": random.randint(3, 4),
+            "gandalf": random.randint(5, 6),
+            "beyonce": random.randint(0, 2)
         } for _ in range(0, VOTES)
     ]
 
@@ -91,7 +91,7 @@ def sort_candidates_by(mentions):
         for j in range(0, len(unsorted) - 1):
             ## but we need REVERSE bubble sort ;-)
             # (note that here we compare tuples, which is pretty neat)
-            if unsorted[j + 1][1] > unsorted[j][1]:
+            if unsorted[j + 1][1] < unsorted[j][1]:
                 unsorted[j+1], unsorted[j] = unsorted[j], unsorted[j+1]
                 swapped = True
 
@@ -112,12 +112,12 @@ def print_results(results):
         mention = MENTIONS[result["mention"]]
         score = result["score"] * 100. / VOTES
         if i == 0:
-            print("Gagnant: {} avec {:.2f}% de mentions {} ou inférieures".format(
+            print("Gagnant: {} avec {:.2f}% de mentions {} ou supérieures".format(
                 name, score, mention
             ))
             continue
         else:
-            print("- {} avec {:.2f}% de mentions {} ou inférieures".format(
+            print("- {} avec {:.2f}% de mentions {} ou supérieures".format(
                 name, score, mention
             ))
 
