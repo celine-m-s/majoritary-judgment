@@ -91,9 +91,19 @@ def sort_candidates_by(mentions):
         for j in range(0, len(unsorted) - 1):
             ## but we need REVERSE bubble sort ;-)
             # (note that here we compare tuples, which is pretty neat)
-            if unsorted[j + 1][1] < unsorted[j][1]:
+            if unsorted[j+1][1] < unsorted[j][1]:
                 unsorted[j+1], unsorted[j] = unsorted[j], unsorted[j+1]
                 swapped = True
+
+    # Begin another loop in case of equalty
+    swapped = True
+    while swapped:
+        swapped = False
+        for i in range(0, len(unsorted) - 1):
+            if unsorted[i][1][0] == unsorted[i+1][1][0]:
+                if unsorted[i+1][1][1] > unsorted[i][1][1]:
+                    unsorted[i+1], unsorted[i] = unsorted[i], unsorted[i+1]
+                    swapped = True
 
     return [
         {
@@ -112,12 +122,12 @@ def print_results(results):
         mention = MENTIONS[result["mention"]]
         score = result["score"] * 100. / VOTES
         if i == 0:
-            print("Gagnant: {} avec {:.2f}% de mentions {} ou supérieures".format(
+            print("Gagnant: {} avec {:.2f}% de mentions {}".format(
                 name, score, mention
             ))
             continue
         else:
-            print("- {} avec {:.2f}% de mentions {} ou supérieures".format(
+            print("- {} avec {:.2f}% de mentions {}".format(
                 name, score, mention
             ))
 
