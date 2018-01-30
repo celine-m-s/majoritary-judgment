@@ -1,1 +1,1 @@
-Algorithm to use in a majoritary judgment election. Work on progress :)
+Algorithm to use in a majoritary judgment election. Work in progress :)
